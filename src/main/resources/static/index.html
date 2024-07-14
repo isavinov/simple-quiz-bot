@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Questions</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+
+        $(document).ready(function() {
+            fetchData();
+
+            $('#addQuestionForm').submit(function(event) {
+                event.preventDefault();
+                var questionData = {
+                    question: $('#questionText').val(),
+                    option1: $('#option1').val(),
+                    option2: $('#option2').val(),
+                    option3: $('#option3').val(),
+                    option4: $('#option4').val(),
+                    answerIndex: $('#correctOption').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/questions',
+                    contentType: 'application/json',
+                    data: JSON.stringify(questionData),
+                    success: function() {
+                        $('#addQuestionModal').modal('hide');
+                        fetchData();
+                    }
+                });
+            });
+        });
+        function fetchData(){
+            $.getJSON("/questions", function (data){
+                var tableContent ='';
+
+                $.each(data, function(index, question) {
+                    tableContent += '<tr>';
+                    tableContent += '<td>' + question.question + '</td>';
+                    tableContent += '<td>' + question.option1 + '</td>';
+                    tableContent += '<td>' + question.option2 + '</td>';
+                    tableContent += '<td>' + question.option3 + '</td>';
+                    tableContent += '<td>' + question.option4 + '</td>';
+                    tableContent += '<td>' + question.answerIndex + '</td>';
+                    tableContent += '<td><button class="btn btn-danger" onclick="deleteQuestion(' + question.id + ')">Delete</button></td>';
+                    tableContent += '</tr>';
+                });
+                $('#questionsTable tbody').html(tableContent);
+            });
+        }
+
+        function deleteQuestion(id) {
+            $.ajax({
+                type: 'DELETE',
+                url: '/questions/' + id,
+                success: function() {
+                    fetchData();
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Questions</h1>
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addQuestionModal">Add Question</button>
+    <table class="table table-bordered" id="questionsTable">
+        <thead>
+        <tr>
+            <th>Question Text</th>
+            <th>Option 1</th>
+            <th>Option 2</th>
+            <th>Option 3</th>
+            <th>Option 4</th>
+            <th>Correct Option</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Content will be injected by jQuery -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal for adding question -->
+<div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addQuestionForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addQuestionModalLabel">Add Question</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="questionText" class="form-label">Question Text</label>
+                        <input type="text" class="form-control" id="questionText" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="option1" class="form-label">Option 1</label>
+                        <input type="text" class="form-control" id="option1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="option2" class="form-label">Option 2</label>
+                        <input type="text" class="form-control" id="option2" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="option3" class="form-label">Option 3</label>
+                        <input type="text" class="form-control" id="option3" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="option4" class="form-label">Option 4</label>
+                        <input type="text" class="form-control" id="option4" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correctOption" class="form-label">Correct Option</label>
+                        <input type="number" class="form-control" id="correctOption" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

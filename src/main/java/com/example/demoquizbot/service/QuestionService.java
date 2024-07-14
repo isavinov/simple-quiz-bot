@@ -18,4 +18,12 @@ public class QuestionService {
     public List<QuestionEntity> getAllQuestion(){
         return questionRepository.findAll();
     }
+
+    public void addQuestion(QuestionEntity question){
+        questionRepository.save(question);
+    }
+
+    public void removeQuestion(Long id){
+        questionRepository.deleteById(id);
+    }
 }
